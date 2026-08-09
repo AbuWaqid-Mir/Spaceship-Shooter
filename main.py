@@ -51,6 +51,9 @@ player_1_crosshair = RED
 player_2_crosshair = BLUE
 current_input = None
 
+# -- Available difficulty levels --
+difficulty_levels = ["Easy", "Medium", "Hard"]
+
 # -- Create a Reusable Button --
 def draw_button(text, x, y, WIDTH, HEIGHT):
     mouse_pos = pygame.mouse.get_pos()
@@ -256,7 +259,7 @@ while running:
 
         elif game_mode == "two_player":
             # -- Create Player 1 name input box --
-            player_1_input = pygame.Rect(350, 180, 300, 60)
+            player_1_input = pygame.Rect(150, 200, 300, 60)
 
             # Change border when input is active
             if current_input == "player_1":
@@ -399,8 +402,19 @@ while running:
                     current_input = "player_1"
                 # Activate Player 2 name input
                 # to ensure we're only using Player 2 box when in 2-player mode
-                elif game_mode == "two-player" and player_2_input.collidepoint(event.pos):
+                elif game_mode == "two_player" and player_2_input.collidepoint(event.pos):
                     current_input = "player_2"
+                # -- Change difficulty --
+                elif difficulty_button.collidepoint(event.pos):
+                    # Find current difficulty
+                    current_index = difficulty_levels.index(difficulty)
+                    # Move to next difficulty
+                    current_index += 1
+                    # Loop back to easy after hard
+                    if current_index >= len(difficulty_levels):
+                        current_index = 0
+                    # Update difficulty
+                    difficulty = difficulty_levels[current_index]
                 # Return to mode selection
                 elif back_button.collidepoint(event.pos):
                     game_state = MODE_SELECT
