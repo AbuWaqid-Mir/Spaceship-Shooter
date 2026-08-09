@@ -40,9 +40,15 @@ GAME_OVER = "game_over"
 
 # Current Game State
 game_state = MENU
-
-# Sound Effects Setting
+game_mode = None
 sound_enabled = True
+
+# Player Setup
+player_1_name = ""
+player_2_name = ""
+difficulty = "Easy"
+player_1_crosshair = RED
+player_2_crosshair = BLUE
 
 # Create a Reusable Button
 def draw_button(text, x, y, WIDTH, HEIGHT):
@@ -167,6 +173,42 @@ while running:
             50
         )
 
+    # Mode Selection Screen
+    elif game_state == MODE_SELECT:
+        SCREEN.fill(RED)
+
+        # Draw mode selection buttons
+        single_player_button = draw_button(
+            "SINGLE PLAYER",
+            350,
+            300,
+            300,
+            60
+        )
+
+        two_player_button = draw_button(
+            "2 PLAYERS",
+            350,
+            380,
+            300,
+            60
+        )
+
+        back_button = draw_button(
+            "BACK",
+            50,
+            700,
+            150,
+            50
+        )
+
+    # Player Setup Screen
+    elif game_state == PLAYER_SETUP:
+        SCREEN.fill((20,20,40))
+
+        # Draw screen title
+        title_text = FONT.render("PLAYER SETUP", )
+
     # Check what every event was
     for event in pygame.event.get():
         # Close window
@@ -174,39 +216,49 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Check menu buttons
+            # Main Menu buttons
             if game_state == MENU:
                 if select_mode_button.collidepoint(event.pos):
                     game_state = MODE_SELECT
-
                 elif instructions_button.collidepoint(event.pos):
                     game_state = INSTRUCTIONS
-
                 elif leaderboard_button.collidepoint(event.pos):
                     game_state = LEADERBOARD
-
                 elif settings_button.collidepoint(event.pos):
                     game_state = SETTINGS
-
                 elif exit_button.collidepoint(event.pos):
                     running = False
 
+            # Instructions buttons
             elif game_state == INSTRUCTIONS:
                 if back_button.collidepoint(event.pos):
                     game_state = MENU
 
+            # Leaderboard buttons
             elif game_state == LEADERBOARD:
                 if back_button.collidepoint(event.pos):
                     game_state = MENU
 
+            # Settings buttons
             elif game_state == SETTINGS:
-
                 # Toggle sound effects
                 if sound_button.collidepoint(event.pos):
                     # "not" creates unlimited toggling
                     sound_enabled = not sound_enabled
-
                 # Return to main menu
+                elif back_button.collidepoint(event.pos):
+                    game_state = MENU
+
+            # Mode selection buttons
+            elif game_state == MODE_SELECT:
+                # Select single player mode
+                if single_player_button.collidepoint(event.pos):
+                    game_mode = "single"
+                    game_state = PLAYER_SETUP
+                # Select 2-player mode
+                elif two_player_button.collidepoint(event.pos):
+                    game_mode = "two_player"
+                    game_state = PLAYER_SETUP
                 elif back_button.collidepoint(event.pos):
                     game_state = MENU
 
