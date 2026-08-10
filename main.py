@@ -51,8 +51,18 @@ player_1_crosshair = RED
 player_2_crosshair = BLUE
 current_input = None
 
+# -- Game Variables --
+player_1_score = 0
+player_2_score = 0
+player_1_misses = 0
+player_2_misses = 0
+game_time = 60
+
 # -- Available difficulty levels --
 difficulty_levels = ["Easy", "Medium", "Hard"]
+
+# -- Available Crosshair Colours --
+crosshair_colours = [RED, BLUE, GREEN, YELLOW]
 
 # -- Create a Reusable Button --
 def draw_button(text, x, y, WIDTH, HEIGHT):
@@ -79,6 +89,29 @@ def draw_button(text, x, y, WIDTH, HEIGHT):
     SCREEN.blit(text_surface, text_rect)
 
     return button_rect
+
+# -- Get next crosshair colour --
+def next_crosshair_colour(current_colour):
+    # Find current colour in list
+    current_index = crosshair_colours.index(current_colour)
+    # Move to next colour
+    current_index += 1
+    # Go back to 1st colour after the last one
+    if current_index >= len(crosshair_colours):
+        current_index = 0
+    # Return the new colour
+    return crosshair_colours[current_index]
+
+# -- Get crosshair colour name --
+def get_colour_name(colour):
+    if colour == RED:
+        return "RED"
+    elif colour == BLUE:
+        return "BLUE"
+    elif colour == GREEN:
+        return "GREEN"
+    elif colour == YELLOW:
+        return "YELLOW"
 
 # -- Game Loop --
 running = True
@@ -250,7 +283,7 @@ while running:
 
             # Crosshair button
             crosshair_button = draw_button(
-                "CROSSHAIR",
+                "CROSSHAIR: " + get_colour_name(player_1_crosshair),
                 350,
                 380,
                 300,
@@ -299,7 +332,7 @@ while running:
 
             # -- Player 1 crosshair button --
             player_1_crosshair_button = draw_button(
-                "P1 CROSSHAIR",
+                "P1 CROSSHAIR: " + get_colour_name(player_1_crosshair),
                 150,
                 300,
                 300,
@@ -308,7 +341,7 @@ while running:
 
             # -- Player 2 crosshair button --
             player_2_crosshair_button = draw_button(
-                "P2 CROSSHAIR",
+                "P2 CROSSHAIR: " + get_colour_name(player_2_crosshair),
                 550,
                 300,
                 300,
@@ -341,6 +374,65 @@ while running:
             150,
             50
         )
+
+    # -- Game Screen --
+    elif game_state == GAME:
+        SCREEN.fill(BLACK)
+
+        # -- Single-player game --
+        if game_mode == "single":
+            # Player 1 score
+            score_text = FONT.render(
+                "SCORE: " + str(player_1_score),
+                True,
+                WHITE
+            )
+            SCREEN.blit(score_text, (30,30))
+
+            # Timer
+            timer_text = FONT.render(
+                str(game_time),
+                True,
+                WHITE
+            )
+            timer_rect = timer_text.get_rect(
+                center=(WIDTH // 2, 40)
+            )
+            SCREEN.blit(timer_text, timer_rect)
+
+        # -- 2-player game --
+        elif game_mode == "two_player":
+            # Player 1 score
+            player_1_score_text = FONT.render(
+                "SCORE: " + str(player_1_score),
+                True,
+                WHITE
+            )
+            SCREEN.blit(player_1_score_text, (30,30))
+
+            # Player 2 score
+            player_2_score_text = FONT.render(
+                "SCORE: " + str(player_2_score),
+                True,
+                WHITE
+            )
+            player_2_score_rect = player_2_score_text.get_rect(
+                top=(30)
+            )
+            player_2_score_rect.right = WIDTH - 30
+            SCREEN.blit(player_2_score_text, player_2_score_rect)
+
+            # Timer
+            timer_text = FONT.render(
+                str(game_time),
+                True,
+                WHITE
+            )
+            timer_rect = timer_text.get_rect(
+                center=(WIDTH // 2, 40)
+            )
+            SCREEN.blit(timer_text, timer_rect)
+
 
     # -- Check what every event was --
     for event in pygame.event.get():
@@ -400,10 +492,12 @@ while running:
                 # Activate Player 1 name input
                 if player_1_input.collidepoint(event.pos):
                     current_input = "player_1"
+
                 # Activate Player 2 name input
                 # to ensure we're only using Player 2 box when in 2-player mode
                 elif game_mode == "two_player" and player_2_input.collidepoint(event.pos):
                     current_input = "player_2"
+
                 # -- Change difficulty --
                 elif difficulty_button.collidepoint(event.pos):
                     # Find current difficulty
@@ -415,6 +509,37 @@ while running:
                         current_index = 0
                     # Update difficulty
                     difficulty = difficulty_levels[current_index]
+
+                elif game_mode == "single" and crosshair_button.collidepoint(event.pos):
+                    player_1_crosshair = next_crosshair_colour(player_1_crosshair)
+
+                # Change Player 1's crosshair colour
+                elif game_mode == "two_player" and player_1_crosshair_button.collidepoint(event.pos):
+                    new_colour = next_crosshair_colour(player_1_crosshair)
+                    # Only change colour if Player 2 isn't already using it
+                    if new_colour != player_2_crosshair:
+                        player_1_crosshair = new_colour
+
+                # Change Player 2's crosshair colour
+                elif game_mode == "two_player" and player_2_crosshair_button.collidepoint(event.pos):
+                    new_colour = next_crosshair_colour(player_2_crosshair)
+                    # Only change colour if Player 1 isn't already using it
+                    if new_colour != player_1_crosshair:
+                        player_2_crosshair = new_colour
+
+                # Start the game
+                elif start_game_button.collidepoint(event.pos):
+                    # Reset scores
+                    player_1_score = 0
+                    player_2_score = 0
+                    # Reset misses
+                    player_1_misses = 0
+                    player_2_misses = 0
+                    # Reset timer
+                    game_time = 60
+                    # Change to Game Screen
+                    game_state = GAME
+
                 # Return to mode selection
                 elif back_button.collidepoint(event.pos):
                     game_state = MODE_SELECT
