@@ -26,6 +26,8 @@ BUTTON_HOVER = (50,60,100)
 BUTTON_BORDER = (100,120,180)
 
 # -- Font --
+TITLE_FONT = pygame.font.SysFont(None,60)
+SCREEN_TITLE = pygame.font.SysFont(None, 50)
 FONT = pygame.font.SysFont(None, 30)
 
 # -- Game States --
@@ -123,7 +125,17 @@ while running:
     if game_state == MENU:
         SCREEN.fill(BLACK)
 
-        # -- Draw main menu buttons --
+        # -- Draw main menu --
+        TITLE = TITLE_FONT.render(
+            "SPACESHIP SHOOTER",
+            True,
+            WHITE
+        )
+        title_rect = TITLE.get_rect(
+            center=(WIDTH // 2, 150)
+        )
+        SCREEN.blit(TITLE, title_rect)
+
         select_mode_button = draw_button(
             "SELECT MODE",
             350,
@@ -133,7 +145,7 @@ while running:
         )
 
         instructions_button = draw_button(
-            "INSTRUCTIONS",
+            "HOW TO PLAY",
             350,
             330,
             300,
@@ -168,6 +180,18 @@ while running:
     # -- Create instructions screen --
     elif game_state == INSTRUCTIONS:
         SCREEN.fill(BLACK)
+
+        # Draw title
+        TITLE = SCREEN_TITLE.render(
+            "HOW TO PLAY",
+            True,
+            WHITE
+        )
+        title_rect = TITLE.get_rect(
+            center=(WIDTH // 2, 150)
+        )
+        SCREEN.blit(TITLE, title_rect)
+
         # Draw back button
         back_button = draw_button(
             "BACK",
@@ -181,6 +205,17 @@ while running:
     elif game_state == LEADERBOARD:
         SCREEN.fill(BLACK)
 
+        # Draw title
+        TITLE = SCREEN_TITLE.render(
+            "LEADERBOARD",
+            True,
+            WHITE
+        )
+        title_rect = TITLE.get_rect(
+            center=(WIDTH // 2, 150)
+        )
+        SCREEN.blit(TITLE, title_rect)
+
         # Draw back button
         back_button = draw_button(
             "BACK",
@@ -193,6 +228,17 @@ while running:
     # -- Create settings screen --
     elif game_state == SETTINGS:
         SCREEN.fill(BLACK)
+
+        # Draw title
+        TITLE = SCREEN_TITLE.render(
+            "SETTINGS",
+            True,
+            WHITE
+        )
+        title_rect = TITLE.get_rect(
+            center=(WIDTH // 2, 200)
+        )
+        SCREEN.blit(TITLE, title_rect)
 
         # Draw sound toggle button
         sound_button = draw_button(
@@ -215,6 +261,17 @@ while running:
     # -- Mode Selection Screen --
     elif game_state == MODE_SELECT:
         SCREEN.fill(BLACK)
+
+        # Draw title
+        TITLE = SCREEN_TITLE.render(
+            "SELECT A MODE",
+            True,
+            WHITE
+        )
+        title_rect = TITLE.get_rect(
+            center=(WIDTH // 2, 150)
+        )
+        SCREEN.blit(TITLE, title_rect)
 
         # -- Draw mode selection buttons --
         single_player_button = draw_button(
@@ -245,15 +302,22 @@ while running:
     elif game_state == PLAYER_SETUP:
         SCREEN.fill((20,20,40))
 
-        # -- Draw screen title --
-        title_text = FONT.render("PLAYER SETUP", True, WHITE)
-        title_rect = title_text.get_rect(center=(WIDTH // 2, 80))
-        SCREEN.blit(title_text, title_rect)
-
         # -- Draw player setup buttons --
 
         # Player 1 name button
         if game_mode == "single":
+
+            # Draw title
+            TITLE = SCREEN_TITLE.render(
+                "SINGLE PLAYER - SETUP",
+                True,
+                WHITE
+            )
+            title_rect = TITLE.get_rect(
+                center=(WIDTH // 2, 100)
+            )
+            SCREEN.blit(TITLE, title_rect)
+
             # Create Player 1 name input box
             player_1_input = pygame.Rect(350, 180, 300, 60)
 
@@ -292,6 +356,18 @@ while running:
             )
 
         elif game_mode == "two_player":
+
+            # Draw title
+            TITLE = SCREEN_TITLE.render(
+                "2 PLAYERS - SETUP",
+                True,
+                WHITE
+            )
+            title_rect = TITLE.get_rect(
+                center=(WIDTH // 2, 120)
+            )
+            SCREEN.blit(TITLE, title_rect)
+
             # -- Create Player 1 name input box --
             player_1_input = pygame.Rect(150, 200, 300, 60)
 
