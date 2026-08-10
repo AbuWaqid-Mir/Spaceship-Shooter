@@ -57,6 +57,7 @@ player_2_score = 0
 player_1_misses = 0
 player_2_misses = 0
 game_time = 60
+start_time = 0
 
 # -- Available difficulty levels --
 difficulty_levels = ["Easy", "Medium", "Hard"]
@@ -383,17 +384,35 @@ while running:
         if game_mode == "single":
             # Player 1 score
             score_text = FONT.render(
-                "SCORE: " + str(player_1_score),
+                player_1_name.upper() + " - SCORE: " + str(player_1_score),
                 True,
                 WHITE
             )
             SCREEN.blit(score_text, (30,30))
 
+            # Calculate remaining game time
+            elapsed_time = (pygame.time.get_ticks() - start_time) // 1000
+            # Calculate remaining game time
+            game_time = 60 - elapsed_time
+            # Prevent timer going below 0
+            if game_time < 0:
+                game_time = 0
+            # Change timer colour depending on remaining time
+            if game_time > 10:
+                timer_colour = GREEN
+            elif game_time > 5:
+                timer_colour = YELLOW
+            else:
+                timer_colour = RED
+            # End game when timer reaches 0
+            if game_time == 0:
+                game_state = GAME_OVER
+
             # Timer
             timer_text = FONT.render(
                 str(game_time),
                 True,
-                WHITE
+                timer_colour
             )
             timer_rect = timer_text.get_rect(
                 center=(WIDTH // 2, 40)
@@ -404,7 +423,7 @@ while running:
         elif game_mode == "two_player":
             # Player 1 score
             player_1_score_text = FONT.render(
-                "SCORE: " + str(player_1_score),
+                player_1_name.upper() + " - SCORE: " + str(player_1_score),
                 True,
                 WHITE
             )
@@ -412,7 +431,7 @@ while running:
 
             # Player 2 score
             player_2_score_text = FONT.render(
-                "SCORE: " + str(player_2_score),
+                player_2_name.upper() + " - SCORE: " + str(player_2_score),
                 True,
                 WHITE
             )
@@ -422,17 +441,112 @@ while running:
             player_2_score_rect.right = WIDTH - 30
             SCREEN.blit(player_2_score_text, player_2_score_rect)
 
+            # Calculate remaining game time
+            elapsed_time = (pygame.time.get_ticks() - start_time) // 1000
+            # Calculate remaining game time
+            game_time = 60 - elapsed_time
+            # Prevent timer going below 0
+            if game_time < 0:
+                game_time = 0
+            # Change timer colour depending on remaining time
+            if game_time > 10:
+                timer_colour = GREEN
+            elif game_time > 5:
+                timer_colour = YELLOW
+            else:
+                timer_colour = RED
+            # End game when timer reaches 0
+            if game_time == 0:
+                game_state = GAME_OVER
+
             # Timer
             timer_text = FONT.render(
                 str(game_time),
                 True,
-                WHITE
+                timer_colour
             )
             timer_rect = timer_text.get_rect(
                 center=(WIDTH // 2, 40)
             )
             SCREEN.blit(timer_text, timer_rect)
 
+    # -- Game Over Screen --
+    elif game_state == GAME_OVER:
+        SCREEN.fill(BLACK)
+
+        # Draw Game Over title
+        game_over_text = FONT.render(
+            "GAME OVER",
+            True,
+            RED
+        )
+        game_over_rect = game_over_text.get_rect(
+            center=(WIDTH // 2, 100)
+        )
+        SCREEN.blit(game_over_text, game_over_rect)
+
+        # Display difficulty
+        difficulty_text = FONT.render(
+            "DIFFICULTY: " + difficulty.upper(),
+            True,
+            WHITE
+        )
+        difficulty_rect = difficulty_text.get_rect(
+            center=(WIDTH // 2, 180)
+        )
+        SCREEN.blit(difficulty_text, difficulty_rect)
+
+        # Display Player 1 Score
+        player_1_score_text = FONT.render(
+            player_1_name + " - SCORE: " + str(player_1_score),
+            True,
+            WHITE
+        )
+        player_1_score_rect = player_1_score_text.get_rect(
+            center=(WIDTH // 2, 250)
+        )
+        SCREEN.blit(player_1_score_text, player_1_score_rect)
+
+        # Display Player 1 misses
+        player_1_misses_text = FONT.render(
+            "MISSES: " + str(player_1_misses),
+            True,
+            WHITE
+        )
+        player_1_misses_rect = player_1_misses_text.get_rect(
+            center=(WIDTH // 2, 300)
+        )
+        SCREEN.blit(player_1_misses_text, player_1_misses_rect)
+
+        # Display Player 2 information
+        if game_mode == "two_player":
+            player_2_score_text = FONT.render(
+                player_2_name + " - SCORE: " + str(player_2_score),
+                True,
+                WHITE
+            )
+            player_2_score_rect = player_2_score_text.get_rect(
+                center=(WIDTH // 2, 370)
+            )
+            SCREEN.blit(player_2_score_text, player_2_score_rect)
+            player_2_misses_text = FONT.render(
+                "MISSES: " + str(player_2_misses),
+                True,
+                WHITE
+            )
+            player_2_misses_rect = player_2_misses_text.get_rect(
+                center=(WIDTH // 2, 420)
+            )
+            SCREEN.blit(player_2_misses_text, player_2_misses_rect)
+
+        # Back to menu button
+        back_to_menu_button = draw_button(
+            "BACK TO MAIN MENU",
+            350,
+            600,
+            300,
+            60
+        )
 
     # -- Check what every event was --
     for event in pygame.event.get():
@@ -479,11 +593,27 @@ while running:
                 # Select single player mode
                 if single_player_button.collidepoint(event.pos):
                     game_mode = "single"
+
+                    # Reset player setup
+                    player_1_name = ""
+                    player_2_name = ""
+                    current_input = None
+                    difficulty = "Easy"
+
                     game_state = PLAYER_SETUP
+
                 # Select 2-player mode
                 elif two_player_button.collidepoint(event.pos):
                     game_mode = "two_player"
+
+                    # Reset player setup
+                    player_1_name = ""
+                    player_2_name = ""
+                    current_input = None
+                    difficulty = "Easy"
+
                     game_state = PLAYER_SETUP
+
                 elif back_button.collidepoint(event.pos):
                     game_state = MENU
 
@@ -537,12 +667,20 @@ while running:
                     player_2_misses = 0
                     # Reset timer
                     game_time = 60
+                    # Record when game started
+                    start_time = pygame.time.get_ticks()
                     # Change to Game Screen
                     game_state = GAME
 
                 # Return to mode selection
                 elif back_button.collidepoint(event.pos):
                     game_state = MODE_SELECT
+
+            # -- Game Over Screen Buttons --
+            elif game_state == GAME_OVER:
+                if back_to_menu_button.collidepoint(event.pos):
+                    game_state = MENU
+
 
         # -- Keyboard Input --
         if event.type == pygame.KEYDOWN:
