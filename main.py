@@ -61,6 +61,13 @@ player_2_misses = 0
 game_time = 60
 start_time = 0
 
+# -- Enemy Variables --
+enemy_x = 400
+enemy_y = 300
+enemy_velocity_x = 3
+enemy_velocity_y = 2
+enemy_size = 50
+
 # -- Available difficulty levels --
 difficulty_levels = ["Easy", "Medium", "Hard"]
 
@@ -456,6 +463,30 @@ while running:
     elif game_state == GAME:
         SCREEN.fill(BLACK)
 
+        # -- Draw enemy --
+        enemy_rect = pygame.Rect(
+            enemy_x,
+            enemy_y,
+            enemy_size,
+            enemy_size
+        )
+
+        pygame.draw.rect(
+            SCREEN,
+            RED,
+            enemy_rect
+        )
+
+        # -- Move enemy --
+        enemy_x += enemy_velocity_x
+        enemy_y += enemy_velocity_y
+
+        # -- Bounce off the screen's sides --
+        if enemy_x <= 0 or enemy_x + enemy_size >= WIDTH:
+            enemy_velocity_x *= -1
+        if enemy_y <= 0 or enemy_y + enemy_size >= HEIGHT:
+            enemy_velocity_y *= -1
+
         # -- Single-player game --
         if game_mode == "single":
             # Player 1 score
@@ -735,6 +766,8 @@ while running:
 
                 # Start the game
                 elif start_game_button.collidepoint(event.pos):
+                    # Deactivate name input
+                    current_input = None
                     # Reset scores
                     player_1_score = 0
                     player_2_score = 0
@@ -750,6 +783,7 @@ while running:
 
                 # Return to mode selection
                 elif back_button.collidepoint(event.pos):
+                    current_input = None
                     game_state = MODE_SELECT
 
             # -- Game Over Screen Buttons --
