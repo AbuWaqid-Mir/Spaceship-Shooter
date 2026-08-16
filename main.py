@@ -5,7 +5,7 @@ import sys
 pygame.init()
 
 # -- Window Setup --
-WIDTH, HEIGHT = 1000,800 # 1000px wide + 800px tall
+WIDTH, HEIGHT = 1000,800
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Spaceship Shooter") # window title
 
@@ -62,14 +62,34 @@ game_time = 60
 start_time = 0
 
 # -- Enemy Variables --
-enemy_x = 400
-enemy_y = 300
-enemy_velocity_x = 3
-enemy_velocity_y = 2
+enemies = []
 enemy_size = 50
+
+# -- Crosshair Variables --
+crosshair_width = 30
+crosshair_height = 20
+crosshair_line_length = 8
+crosshair_line_width = 2
+crosshair_dot_size = 3
 
 # -- Available difficulty levels --
 difficulty_levels = ["Easy", "Medium", "Hard"]
+
+# -- Enemy difficulty levels --
+enemy_settings = {
+    "Easy": {
+        "amount": 8,
+        "speed": 2
+    },
+    "Medium": {
+        "amount": 5,
+        "speed": 4
+    },
+    "Hard": {
+        "amount": 3,
+        "speed": 6
+    }
+}
 
 # -- Available Crosshair Colours --
 crosshair_colours = [RED, BLUE, GREEN, YELLOW]
@@ -122,6 +142,74 @@ def get_colour_name(colour):
         return "GREEN"
     elif colour == YELLOW:
         return "YELLOW"
+
+
+# -- Draw Crosshair --
+def draw_crosshair(x, y, colour):
+    # Create crosshair rectangle
+    crosshair_rect = pygame.Rect(
+        x - crosshair_width // 2,
+        y - crosshair_height // 2,
+        crosshair_width,
+        crosshair_height
+    )
+    # Draw rectangle outline
+    pygame.draw.rect(
+        SCREEN,
+        colour,
+        crosshair_rect,
+        crosshair_line_width
+    )
+    # Draw left line
+    pygame.draw.line(
+        SCREEN,
+        colour,
+        (crosshair_rect.left - crosshair_line_length, y),
+        (crosshair_rect.left, y),
+        crosshair_line_width
+    )
+    # Draw right line
+    pygame.draw.line(
+        SCREEN,
+        colour,
+        (crosshair_rect.right, y),
+        (crosshair_rect.right + crosshair_line_length, y),
+        crosshair_line_width
+    )
+    # Draw top line
+    pygame.draw.line(
+        SCREEN,
+        colour,
+        (x, crosshair_rect.top - crosshair_line_length),
+        (x, crosshair_rect.top),
+        crosshair_line_width
+    )
+    # Draw bottom line
+    pygame.draw.line(
+        SCREEN,
+        colour,
+        (x, crosshair_rect.bottom),
+        (x, crosshair_rect.bottom + crosshair_line_length),
+        crosshair_line_width
+    )
+    # Draw centre dot
+    pygame.draw.circle(
+        SCREEN,
+        colour,
+        (x, y),
+        crosshair_dot_size
+    )
+
+# -- Create enemy --
+def create_enemy(x, y, velocity_x, velocity_y):
+    # Create dictionary to store everything belonging to 1 enemy
+    return {
+        "x": x,
+        "y": y,
+        "velocity_x": velocity_x,
+        "velocity_y": velocity_y
+    }
+
 
 # -- Game Loop --
 running = True
@@ -463,29 +551,33 @@ while running:
     elif game_state == GAME:
         SCREEN.fill(BLACK)
 
-        # -- Draw enemy --
-        enemy_rect = pygame.Rect(
-            enemy_x,
-            enemy_y,
-            enemy_size,
-            enemy_size
-        )
+        for enemy in enemies:
+            # Create enemy rectangle
+            enemy_rect = pygame.Rect(
+                enemy["x"],
+                enemy["y"],
+                enemy_size,
+                enemy_size
+            )
 
-        pygame.draw.rect(
-            SCREEN,
-            RED,
-            enemy_rect
-        )
+            # Draw enemy
+            pygame.draw.rect(
+                SCREEN,
+                RED,
+                enemy_rect
+            )
 
-        # -- Move enemy --
-        enemy_x += enemy_velocity_x
-        enemy_y += enemy_velocity_y
+            # Move enemy
+            enemy["x"] += enemy["velocity_x"]
+            enemy["y"] += enemy["velocity_y"]
 
-        # -- Bounce off the screen's sides --
-        if enemy_x <= 0 or enemy_x + enemy_size >= WIDTH:
-            enemy_velocity_x *= -1
-        if enemy_y <= 0 or enemy_y + enemy_size >= HEIGHT:
-            enemy_velocity_y *= -1
+            # Bounce off left and right sides
+            if enemy["x"] <= 0 or enemy["x"] + enemy_size >= WIDTH:
+                enemy["velocity_x"] *= -1
+
+            # Bounce off top and bottom
+            if enemy["y"] <= 0 or enemy["y"] + enemy_size >= HEIGHT:
+                enemy["velocity_y"] *= -1
 
         # -- Single-player game --
         if game_mode == "single":
@@ -774,6 +866,22 @@ while running:
                     # Reset misses
                     player_1_misses = 0
                     player_2_misses = 0
+
+                    # -- Create enemies based on difficulty --
+                    enemies = []
+                    # Find difficulty level, then it's enemy amount and speed
+                    enemy_amount = enemy_settings[difficulty]["amount"]
+                    enemy_speed = enemy_settings[difficulty]["speed"]
+                    # Check enemy count, then creates that many enemies
+                    for i in range(enemy_amount):
+                        enemy = create_enemy(
+                            100 + i * 100,
+                            200,
+                            enemy_speed,
+                            enemy_speed
+                        )
+                        enemies.append(enemy)
+
                     # Reset timer
                     game_time = 60
                     # Record when game started
