@@ -580,6 +580,15 @@ while running:
             if enemy["y"] <= 0 or enemy["y"] + enemy_size >= HEIGHT:
                 enemy["velocity_y"] *= -1
 
+        # -- Draw crosshair --
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if game_mode == "single":
+            draw_crosshair(
+                mouse_x,
+                mouse_y,
+                player_1_crosshair,
+            )
+
         # -- Single-player game --
         if game_mode == "single":
             # Player 1 score
