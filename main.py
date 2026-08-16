@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # -- Initialise all Pygame modules --
 pygame.init()
@@ -874,11 +875,18 @@ while running:
                     enemy_speed = enemy_settings[difficulty]["speed"]
                     # Check enemy count, then creates that many enemies
                     for i in range(enemy_amount):
+                        # Random starting position
+                        enemy_x = random.randint(0, WIDTH - enemy_size)
+                        enemy_y = random.randint(100, HEIGHT - enemy_size)
+                        # Random movement direction
+                        velocity_x = random.choice([-enemy_speed, enemy_speed])
+                        velocity_y = random.choice([-enemy_speed, enemy_speed])
+                        # Create enemy
                         enemy = create_enemy(
-                            100 + i * 100,
-                            200,
-                            enemy_speed,
-                            enemy_speed
+                            enemy_x,
+                            enemy_y,
+                            velocity_x,
+                            velocity_y,
                         )
                         enemies.append(enemy)
 
